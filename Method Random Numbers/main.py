@@ -16,7 +16,7 @@ def method_square(num, n):
             num_2 = "0" + num_2
 
         # Выделяем n средних разрядов
-        if(capacity % 2 == 0):
+        if capacity % 2 == 0:
             new_num = num_2[int(capacity - capacity/2):int(capacity+capacity/2)]# Если четное число разрядов
         else:
             new_num = num_2[int(capacity - capacity / 2):int(capacity + capacity / 2)]
@@ -43,7 +43,7 @@ def method_compasion(num, core, n):
             num_2 = "0" + num_2
 
         # Выделяем n средних разрядов
-        if (capacity % 2 == 0):
+        if capacity % 2 == 0:
             new_num = num_2[int(capacity - capacity / 2):int(capacity + capacity / 2)]  # Если четное число разрядов
         else:
             new_num = num_2[int(capacity - capacity / 2):int(capacity + capacity / 2)]
@@ -56,9 +56,23 @@ def method_compasion(num, core, n):
 
     return random_number
 
+# Мультипликативный конгруэнтный метод
+def multiplicative_congruent_method(num, multiplier, divider, n):
+    # Массив полученных чисел
+    random_number = np.array([])
+    capacity = len(str(num))  # Разрядность числа
+    for i in range(n):
+        new_num = num * multiplier % divider  # Число на множитель и получаем остаток
+        # Добавляем случайное число,
+        # равномерно распределённое в интервале (0; 1);
+        random_number = np.append(random_number, new_num * pow(10, -capacity))
+
+        num = new_num
+
+    return random_number
 
 def main():
-    n = 7 # Количество повторений
+    n = 8 # Количество повторений
     # num = 1357 # Исходное число
     # print(method_square(str(num), n))
 
@@ -66,7 +80,10 @@ def main():
     # core = 5167 # Ядро
     # print(method_compasion(str(num), core, n))
 
-    # мультипликативный конгруэнтный метод
+    num = 1357 # Исходное число
+    multiplier = 1357 # Множитель
+    divider = 5689 # Делитель
+    print(multiplicative_congruent_method(num, multiplier, divider, n))
     # методы, представляющие модификации перечисленных методов
 
 if __name__ == '__main__':
