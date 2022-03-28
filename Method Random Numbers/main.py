@@ -2,6 +2,10 @@ import math
 import random
 import numpy as np
 
+import matplotlib
+import matplotlib.pyplot as plt
+
+
 # Метод квадратов
 def method_square(num, n):
     # Массив полученных чисел
@@ -26,6 +30,14 @@ def method_square(num, n):
         random_number = np.append(random_number, int(new_num)*pow(10,-capacity))
 
         num = new_num
+
+    plt.hist(random_number, color='blue', edgecolor='black',
+             bins=int(n/10))
+
+    plt.title('Гистограмма метода квадратов')
+    plt.xlabel('Значение')
+    plt.ylabel('Частота')
+    plt.show()
 
     return random_number
 
@@ -54,6 +66,14 @@ def method_compasion(num, core, n):
 
         num = num_2[-capacity:]
 
+    plt.hist(random_number, color='blue', edgecolor='black',
+             bins=int(n/10))
+
+    plt.title('Гистограмма метода произведений')
+    plt.xlabel('Значение')
+    plt.ylabel('Частота')
+    plt.show()
+
     return random_number
 
 # Мультипликативный конгруэнтный метод
@@ -68,23 +88,62 @@ def multiplicative_congruent_method(num, multiplier, divider, n):
         random_number = np.append(random_number, new_num * pow(10, -capacity))
 
         num = new_num
+    plt.hist(random_number, color='blue', edgecolor='black',
+             bins=int(n/10))
+
+    plt.title('Гистограмма мультипликативного конгруэнтного метода')
+    plt.xlabel('Значение')
+    plt.ylabel('Частота')
+    plt.show()
 
     return random_number
 
-def main():
-    n = 8 # Количество повторений
-    # num = 1357 # Исходное число
-    # print(method_square(str(num), n))
+# методы, представляющие модификации перечисленных методов
+def multiplicative_congruent_method_modification(num, multiplier, divider, n, u):
+    # Массив полученных чисел
+    random_number = np.array([])
+    capacity = len(str(num))  # Разрядность числа
+    for i in range(n):
+        new_num = round(((num * multiplier + u) % divider), 4)  # Число на множитель и получаем остаток
+        capacity = len(str(num))
+        # Добавляем случайное число,
+        # равномерно распределённое в интервале (0; 1);
+        pull = '0' + str(new_num)
+        random_number = np.append(random_number, pull)
 
-    # num = 3729  # Исходное число
-    # core = 5167 # Ядро
-    # print(method_compasion(str(num), core, n))
+        num = new_num
+
+    plt.hist(random_number, color='blue', edgecolor='black',
+             bins=int(n / 10))
+
+    plt.title('Гистограмма метода, представляющий модификацию перечисленных методов')
+    plt.xlabel('Значение')
+    plt.ylabel('Частота')
+    plt.show()
+
+    return random_number
+
+
+def main():
+    n = 10000 # Количество повторений
+    num = 7153 # Исходное число
+    method_square(str(num), n)
+
+    num = 3729  # Исходное число
+    core = 5167 # Ядро
+    method_compasion(str(num), core, n)
 
     num = 1357 # Исходное число
     multiplier = 1357 # Множитель
     divider = 5689 # Делитель
-    print(multiplicative_congruent_method(num, multiplier, divider, n))
-    # методы, представляющие модификации перечисленных методов
+    multiplicative_congruent_method(num, multiplier, divider, n)
+
+    num = 1357 # Исходное число
+    multiplier = 7 # Множитель
+    divider = 65537 # Делитель
+    u = 74 # Аддитивная константа
+    multiplicative_congruent_method_modification(num, multiplier, divider, n, u)
+
 
 if __name__ == '__main__':
     main()
