@@ -1,8 +1,4 @@
-import math
-import random
 import numpy as np
-
-import matplotlib
 import matplotlib.pyplot as plt
 
 
@@ -21,18 +17,18 @@ def method_square(num, n):
 
         # Выделяем n средних разрядов
         if capacity % 2 == 0:
-            new_num = num_2[int(capacity - capacity/2):int(capacity+capacity/2)]# Если четное число разрядов
+            new_num = num_2[int(capacity - capacity / 2):int(capacity + capacity / 2)]  # Если четное число разрядов
         else:
             new_num = num_2[int(capacity - capacity / 2):int(capacity + capacity / 2)]
 
         # Добавляем случайное число,
         # равномерно распределённое в интервале (0; 1);
-        random_number = np.append(random_number, int(new_num)*pow(10,-capacity))
+        random_number = np.append(random_number, int(new_num) * pow(10, -capacity))
 
         num = new_num
 
     plt.hist(random_number, color='blue', edgecolor='black',
-             bins=int(n/10))
+             bins=int(n / 10))
 
     plt.title('Гистограмма метода квадратов')
     plt.xlabel('Значение')
@@ -40,6 +36,7 @@ def method_square(num, n):
     plt.show()
 
     return random_number
+
 
 # Метод произведений
 def method_compasion(num, core, n):
@@ -67,7 +64,7 @@ def method_compasion(num, core, n):
         num = num_2[-capacity:]
 
     plt.hist(random_number, color='blue', edgecolor='black',
-             bins=int(n/10))
+             bins=int(n / 10))
 
     plt.title('Гистограмма метода произведений')
     plt.xlabel('Значение')
@@ -75,6 +72,7 @@ def method_compasion(num, core, n):
     plt.show()
 
     return random_number
+
 
 # Мультипликативный конгруэнтный метод
 def multiplicative_congruent_method(num, multiplier, divider, n):
@@ -89,7 +87,7 @@ def multiplicative_congruent_method(num, multiplier, divider, n):
 
         num = new_num
     plt.hist(random_number, color='blue', edgecolor='black',
-             bins=int(n/10))
+             bins=int(n / 10))
 
     plt.title('Гистограмма мультипликативного конгруэнтного метода')
     plt.xlabel('Значение')
@@ -98,18 +96,20 @@ def multiplicative_congruent_method(num, multiplier, divider, n):
 
     return random_number
 
+
 # методы, представляющие модификации перечисленных методов
 def multiplicative_congruent_method_modification(num, multiplier, divider, n, u):
     # Массив полученных чисел
     random_number = np.array([])
     capacity = len(str(num))  # Разрядность числа
     for i in range(n):
-        new_num = round(((num * multiplier + u) % divider), 4)  # Число на множитель и получаем остаток
+        new_num = (num * multiplier + u) % divider  # Число на множитель и получаем остаток
         capacity = len(str(num))
         # Добавляем случайное число,
         # равномерно распределённое в интервале (0; 1);
-        pull = '0' + str(new_num)
-        random_number = np.append(random_number, pull)
+        pull = len(str(new_num))
+        print(new_num)
+        random_number = np.append(random_number, new_num * pow(10, -pull))
 
         num = new_num
 
@@ -125,26 +125,25 @@ def multiplicative_congruent_method_modification(num, multiplier, divider, n, u)
 
 
 def main():
-    n = 10000 # Количество повторений
-    num = 7153 # Исходное число
-    method_square(str(num), n)
+    n = 1000  # Количество повторений
+    # num = 7153 # Исходное число
+    # method_square(str(num), n)
+    #
+    # num = 3729  # Исходное число
+    # core = 5167 # Ядро
+    # method_compasion(str(num), core, n)
+    #
+    # num = 1357 # Исходное число
+    # multiplier = 1357 # Множитель
+    # divider = 5689 # Делитель
+    # multiplicative_congruent_method(num, multiplier, divider, n)
 
-    num = 3729  # Исходное число
-    core = 5167 # Ядро
-    method_compasion(str(num), core, n)
-
-    num = 1357 # Исходное число
-    multiplier = 1357 # Множитель
-    divider = 5689 # Делитель
-    multiplicative_congruent_method(num, multiplier, divider, n)
-
-    num = 1357 # Исходное число
-    multiplier = 7 # Множитель
-    divider = 65537 # Делитель
-    u = 74 # Аддитивная константа
+    num = 1357  # Исходное число
+    multiplier = 1357  # Множитель
+    divider = 5689  # Делитель
+    u = 0  # Аддитивная константа
     multiplicative_congruent_method_modification(num, multiplier, divider, n, u)
 
 
 if __name__ == '__main__':
     main()
-
