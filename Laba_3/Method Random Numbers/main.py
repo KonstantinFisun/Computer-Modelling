@@ -80,10 +80,12 @@ def multiplicative_congruent_method(num, multiplier, divider, n):
     random_number = np.array([])
     capacity = len(str(num))  # Разрядность числа
     for i in range(n):
-        new_num = num * multiplier % divider  # Число на множитель и получаем остаток
+        new_num = (num * multiplier + 0) % divider  # Число на множитель и получаем остаток
+        capacity = len(str(num))
         # Добавляем случайное число,
         # равномерно распределённое в интервале (0; 1);
-        random_number = np.append(random_number, new_num * pow(10, -capacity))
+        pull = len(str(new_num))
+        random_number = np.append(random_number, new_num * pow(10, -pull))
 
         num = new_num
     plt.hist(random_number, color='blue', edgecolor='black',
@@ -103,12 +105,11 @@ def multiplicative_congruent_method_modification(num, multiplier, divider, n, u)
     random_number = np.array([])
     capacity = len(str(num))  # Разрядность числа
     for i in range(n):
-        new_num = (num * multiplier + u) % divider  # Число на множитель и получаем остаток
+        new_num = ((num * multiplier) + u) % divider  # Число на множитель и получаем остаток
         capacity = len(str(num))
         # Добавляем случайное число,
         # равномерно распределённое в интервале (0; 1);
         pull = len(str(new_num))
-        print(new_num)
         random_number = np.append(random_number, new_num * pow(10, -pull))
 
         num = new_num
@@ -132,16 +133,16 @@ def main():
     # num = 3729  # Исходное число
     # core = 5167 # Ядро
     # method_compasion(str(num), core, n)
-    #
-    # num = 1357 # Исходное число
-    # multiplier = 1357 # Множитель
-    # divider = 5689 # Делитель
-    # multiplicative_congruent_method(num, multiplier, divider, n)
+
+    num = 1357 # Исходное число
+    multiplier = 1357 # Множитель
+    divider = 5689 # Делитель
+    multiplicative_congruent_method(num, multiplier, divider, n)
 
     num = 1357  # Исходное число
     multiplier = 1357  # Множитель
     divider = 5689  # Делитель
-    u = 0  # Аддитивная константа
+    u = 39999999999999999  # Аддитивная константа
     multiplicative_congruent_method_modification(num, multiplier, divider, n, u)
 
 
