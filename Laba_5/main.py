@@ -1,8 +1,9 @@
 import numpy as np
 import random
+import matplotlib.pyplot as plt
 
-
-class Model1:
+class Model_detail:
+    # Конструктор
     def __init__(self, count_detail):
 
         # Наладка станка 0.2 до 0.5 ч
@@ -21,87 +22,102 @@ class Model1:
         self.min_breakdown_duration = 0.1  # время устранения поломки станка(миним)
         self.max_breakdown_duration = 0.5  # время устранения поломки станка(макс)
 
+        self.result_time = 0  # Время, которое было потрачено на всю работу
+        self.time_every_detail = []  # Время затраченное на каждую деталь
+
+        self.count_breakdown = 0  # кол-во поломок
+
         self.count_detail = count_detail  # кол-во деталей
 
+    # Обработчик деталей
     def model(self):
-        det = 0  # количество деталей, которые были обработаны
-        res_time = 0  # время, которое было потрачено на всю работу (500 деталей)
-        check_breakdown = True  # изначально время поломки станка неизвестно. Если false, то до/во время изготовления предыдущей детали станок не успел сломаться, но может сломаться потом
-        sum_t_breakdown = 0  # суммарное время поломок
-        count_breakdown = 0  # кол-во поломок
-        t_breakdown = 0  # время между поломками
-        queue = []  # очередь деталей
+        count_processed_detail = 0  # количество деталей, которые были обработаны
 
-        while det < self.count_detail or len(queue) != 0:  # если деталей не 500 или есть деталей нет в очереди
-            time_for_this_det = res_time  # будем работать со временем в безопасной переменной
+        check_breakdown = True  # Станок в любой момент может сломаться
+        all_time_breakdown = 0  # суммарное время поломок
 
-            # перед выполнением каждого задания нужна наладка станка:
-            t_naladki = np.random.uniform(self.min_setup_time, self.max_setup_time)
+        time_between_breakdown = 0  # время между поломками
+        queue_detail = []  # очередь деталей
+        time_for_this_detail = 0  # Время выполнения текущей детали
 
-            # ЕСЛИ ЭТО УБРАТЬ, ТО ОТВЕТ СХОДИТСЯ:???
-            time_for_this_det += t_naladki  # но я считаю, что с наладкой ответ правильнее
+        # если деталей обработано меньше чем дано или есть деталей нет в очереди
+        while count_processed_detail < self.count_detail or len(queue_detail) != 0:
 
-            # получаем деталь с интервалом:
-            t_interval_next = random.expovariate(1)  # экспоненциальное распределение
+            # Получаем деталь с интервалом:
+            time_interval_next = random.expovariate(1)  # экспоненциальное распределение
 
-            # время выполнения текущего задания
-            t_work = np.random.normal(self.mx_time,
-                                      self.sd_time)  # нормальное распределение
-            time_for_this_det += t_interval_next
+            # Наладка станка:
+            install_machine = np.random.uniform(self.min_setup_time, self.max_setup_time)
+
+            time_for_this_detail += install_machine  # Прибавляем время наладки
+
+            # Время выполнения текущей детали
+            time_work_machine = np.random.normal(self.mx_time, self.sd_time)  # нормальное распределение
+            time_for_this_detail += time_interval_next
 
             # если интервал следующей поломки не выбран:
             if check_breakdown:
-                t_breakdown = np.random.normal(self.interval_breaking,
-                                               self.sd_interval_breaking)
-                check_breakdown = False  # станок надо чинить скоро
+                time_between_breakdown = np.random.normal(self.interval_breaking, self.sd_interval_breaking)
+                check_breakdown = False  # Станок скоро сломается
 
             # Поломка произошла, когда обрабатывалась деталь:
-            if time_for_this_det + t_work > sum_t_breakdown + t_breakdown > time_for_this_det:
+            if time_for_this_detail + self.result_time + time_work_machine > \
+                    all_time_breakdown + time_between_breakdown > time_for_this_detail + self.result_time:
 
-                # время устранения поломки
-                t_fix_breakdown = np.random.uniform(self.min_breakdown_duration,
-                                                    self.max_breakdown_duration)  # равномерное распределение
+                # Время устранения поломки
+                time_fix_breakdown = np.random.uniform(self.min_breakdown_duration,
+                                                       self.max_breakdown_duration)  # равномерное распределение
 
-                sum_t_breakdown += t_breakdown + t_fix_breakdown  # сохраняем интервал и время на починку
+                all_time_breakdown += time_between_breakdown + time_fix_breakdown  # сохраняем интервал и время на починку
 
-                time_for_this_det = sum_t_breakdown  # sum_t_breakdown полностью задает время, которое прошло с начала работы станка, потому что хранит все интервалы между поломками+время на починку каждой из них
-                # это присваивание (строка выше) нужно, чтобы учесть время, которое было потрачено на незаконченную деталь
+                time_for_this_detail += time_fix_breakdown  # Добавили время исправления детали
 
-                count_breakdown += 1  # отмечаем поломку
+                self.count_breakdown += 1  # Отмечаем поломку
 
-                check_breakdown = True  # станок починили
-                det += 1
+                check_breakdown = True  # Станок починили
 
-                queue.append(det)  # отправка детали в очередь
+                queue_detail.append(count_processed_detail)  # отправка детали в очередь
 
-            # 2) она произошла во время простоя:
-            elif time_for_this_det + t_work > sum_t_breakdown + t_breakdown > res_time:
-                # время устранения поломки
-                t_fix_breakdown = np.random.uniform(self.min_breakdown_duration,
-                                                    self.max_breakdown_duration)  # равномерное распределение
+            # Поломка произошла во время простоя:
+            elif time_for_this_detail + time_work_machine + self.result_time > all_time_breakdown + time_between_breakdown > self.result_time:
 
-                sum_t_breakdown += t_breakdown + t_fix_breakdown  # сохраняем интервал и время на починку
+                # Время устранения поломки
+                time_fix_breakdown = np.random.uniform(self.min_breakdown_duration,
+                                                       self.max_breakdown_duration)  # равномерное распределение
 
-                time_for_this_det += t_work  # деталь полноценно обработалась
+                all_time_breakdown += time_between_breakdown + time_fix_breakdown  # сохраняем интервал и время на починку
 
-                count_breakdown += 1  # отмечаем поломку
+                time_for_this_detail += time_work_machine  # деталь полноценно обработалась
+
+                self.count_breakdown += 1  # отмечаем поломку
 
                 check_breakdown = True  # станок починили
 
             # еще одна деталь готова
-            if len(queue) == 0:
-                det += 1
+            if len(queue_detail) == 0:
+                count_processed_detail += 1
             else:
-                del (queue[0])  # если была очередь, берем деталь из нее
+                del (queue_detail[0])  # если была очередь, берем деталь из нее
 
-            res_time = time_for_this_det  # сохраняем время обработки
+            self.result_time += time_for_this_detail  # сохраняем время обработки
+            self.time_every_detail.append(time_for_this_detail)
+
+            time_for_this_detail = 0
+
+    # Вывод
+    def output(self):
+        print('Общее время выполнения задачи: ' + str(self.result_time) + ' ч.')
+        print(self.time_every_detail)
+
+    # График
 
         print('Время выполнения задания: ' + str(res_time) + ' ч.\nКоличество поломок: ' + str(count_breakdown))
 
 
 def main():
-    a = Model1(50000000000000000000000000000000000000)
+    a = Model_detail(500)
     a.model()
+    a.output()
 
 
 if __name__ == '__main__':
