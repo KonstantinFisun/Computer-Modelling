@@ -2,6 +2,7 @@ import numpy as np
 import random
 import matplotlib.pyplot as plt
 
+
 class Model_detail:
     # Конструктор
     def __init__(self, count_detail):
@@ -23,7 +24,7 @@ class Model_detail:
         self.max_breakdown_duration = 0.5  # время устранения поломки станка(макс)
 
         self.result_time = 0  # Время, которое было потрачено на всю работу
-        self.time_every_detail = []  # Время затраченное на каждую деталь
+        self.time_every_detail = [0] * count_detail  # Время затраченное на каждую деталь
 
         self.count_breakdown = 0  # кол-во поломок
 
@@ -31,7 +32,9 @@ class Model_detail:
 
     # Обработчик деталей
     def model(self):
+
         count_processed_detail = 0  # количество деталей, которые были обработаны
+        number_detail = 0  # Номер детали в очереди
 
         check_breakdown = True  # Станок в любой момент может сломаться
         all_time_breakdown = 0  # суммарное время поломок
@@ -40,11 +43,18 @@ class Model_detail:
         queue_detail = []  # очередь деталей
         time_for_this_detail = 0  # Время выполнения текущей детали
 
+        again = 0 # Флаг
+
         # если деталей обработано меньше чем дано или есть деталей нет в очереди
         while count_processed_detail < self.count_detail or len(queue_detail) != 0:
-
-            # Получаем деталь с интервалом:
-            time_interval_next = random.expovariate(1)  # экспоненциальное распределение
+            again = 0 # Флаг
+            # Получаем детали с интервалом:
+            if number_detail < self.count_detail:
+                time_interval_next = random.expovariate(1)  # экспоненциальное распределение
+                self.result_time += time_interval_next
+                queue_detail.append(number_detail)  # Добавили деталь в очередь
+                number_detail += 1  # Переход к следующей
+                self.time_every_detail[number_detail-1] += time_interval_next # Добавили время ожидания
 
             # Наладка станка:
             install_machine = np.random.uniform(self.min_setup_time, self.max_setup_time)
@@ -53,7 +63,6 @@ class Model_detail:
 
             # Время выполнения текущей детали
             time_work_machine = np.random.normal(self.mx_time, self.sd_time)  # нормальное распределение
-            time_for_this_detail += time_interval_next
 
             # если интервал следующей поломки не выбран:
             if check_breakdown:
@@ -76,7 +85,7 @@ class Model_detail:
 
                 check_breakdown = True  # Станок починили
 
-                queue_detail.append(count_processed_detail)  # отправка детали в очередь
+                again = 1  # Обработка детали заново
 
             # Поломка произошла во время простоя:
             elif time_for_this_detail + time_work_machine + self.result_time > all_time_breakdown + time_between_breakdown > self.result_time:
@@ -93,16 +102,14 @@ class Model_detail:
 
                 check_breakdown = True  # станок починили
 
-            # еще одна деталь готова
-            if len(queue_detail) == 0:
-                count_processed_detail += 1
-            else:
-                del (queue_detail[0])  # если была очередь, берем деталь из нее
+            # еще одна
+            if again == 0:
+                self.result_time += time_for_this_detail  # сохраняем время обработки
+                self.time_every_detail[count_processed_detail] += time_for_this_detail # Добавляем время обработки детали
 
-            self.result_time += time_for_this_detail  # сохраняем время обработки
-            self.time_every_detail.append(time_for_this_detail)
-
-            time_for_this_detail = 0
+                time_for_this_detail = 0
+                count_processed_detail += 1 # Деталь готова
+                del (queue_detail[0])  # Убираем очередь
 
     # Вывод
     def output(self):
@@ -112,7 +119,7 @@ class Model_detail:
     # График
     def show(self):
         plt.hist(self.time_every_detail, color='blue', edgecolor='black',
-                 bins=int(self.count_detail/10))
+                 bins=int(self.count_detail / 10))
 
         plt.title('Время затраченное на каждую деталь')
         plt.xlabel('Время ч.')
