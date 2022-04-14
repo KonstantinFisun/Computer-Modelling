@@ -110,14 +110,21 @@ class Model_detail:
         print(self.time_every_detail)
 
     # График
+    def show(self):
+        plt.hist(self.time_every_detail, color='blue', edgecolor='black',
+                 bins=int(self.count_detail/10))
 
-        print('Время выполнения задания: ' + str(res_time) + ' ч.\nКоличество поломок: ' + str(count_breakdown))
+        plt.title('Время затраченное на каждую деталь')
+        plt.xlabel('Время ч.')
+        plt.ylabel('Количество деталей')
+        plt.show()
 
 
 def main():
     a = Model_detail(500)
     a.model()
     a.output()
+    a.show()
 
 
 if __name__ == '__main__':
