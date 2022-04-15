@@ -48,26 +48,30 @@ def fun_y2(t, x, y):
     return 2 * y
 
 
-# считает коэффициенты для двух функций
-def delta(fun_x, fun_y, t, x, y, h):
+# считает коэффициенты для функций
+# fun_x - производная по x
+# fun_y - производная по y
+# h - шаг
+def formula(fun_x, fun_y, t, x, y, h):
     k1 = h * fun_x(t, x, y)
     l1 = h * fun_y(t, x, y)
 
-    k2 = h * fun_x(t + h / 2, x + k1 / 2., y + l1 / 2.)
-    l2 = h * fun_y(t + h / 2, x + k1 / 2., y + l1 / 2.)
+    k2 = h * fun_x(t + h / 2, x + k1 / 2, y + l1 / 2)
+    l2 = h * fun_y(t + h / 2, x + k1 / 2, y + l1 / 2)
 
-    k3 = h * fun_x(t + h / 2, x + k2 / 2., y + l2 / 2.)
-    l3 = h * fun_y(t + h / 2, x + k2 / 2., y + l2 / 2.)
+    k3 = h * fun_x(t + h / 2, x + k2 / 2, y + l2 / 2)
+    l3 = h * fun_y(t + h / 2, x + k2 / 2, y + l2 / 2)
 
     k4 = h * fun_x(t + h, x + k3, y + l3)
     l4 = h * fun_y(t + h, x + k3, y + l3)
 
-    d_x = (k1 + 2. * k2 + 2. * k3 + k4) / 6.
-    d_y = (l1 + 2. * l2 + 2. * l3 + l4) / 6.
+    d_x = (k1 + 2 * k2 + 2 * k3 + k4) / 6
+    d_y = (l1 + 2 * l2 + 2 * l3 + l4) / 6
+
     return d_x, d_y
 
 
-def runge_kutta(fun_x, fun_y, x0, y0, h, t0):  # Метод Рунге-Кутта 4 - го порядка
+def runge_kutta_4(fun_x, fun_y, x0, y0, h, t0):  # Метод Рунге-Кутта 4 - го порядка
     # начальные значения
     x = [x0]
     y = [y0]
@@ -75,7 +79,7 @@ def runge_kutta(fun_x, fun_y, x0, y0, h, t0):  # Метод Рунге-Кутт�
 
     # заполнение массивов координат
     for i in range(20):
-        d_x, d_y = delta(fun_x, fun_y, t0, x0, y0, h)
+        d_x, d_y = formula(fun_x, fun_y, t0, x0, y0, h)
         x0 = x0 + d_x  # функция x(t)
         y0 = y0 + d_y  # функция y(t)
         t0 = t0 + h
@@ -87,7 +91,7 @@ def runge_kutta(fun_x, fun_y, x0, y0, h, t0):  # Метод Рунге-Кутт�
 
 
 # вычисление точных значений x(t), y(t)
-def exact_solution(exact_x, exact_y, t0, b):
+def exact_solution(exact_x, exact_y, t0):
     N = 100
     x, y = [], []
     t = np.linspace(t0, N)
@@ -99,7 +103,7 @@ def exact_solution(exact_x, exact_y, t0, b):
 
 # построение графиков
 def show(fun_x, fun_y, exact_x, exact_y, x0, y0, t0, title):
-    x, y, t = runge_kutta(fun_x, fun_y, x0, y0, 0.1, t0)  # Решение с помощью Рунге-Кутта
+    x, y, t = runge_kutta_4(fun_x, fun_y, x0, y0, 0.1, t0)  # Решение с помощью Рунге-Кутта
     x1, y1, t1 = exact_solution(exact_x, exact_y, t0)  # Точное решение
 
     fig, ax = plt.subplots()
@@ -117,9 +121,9 @@ def show(fun_x, fun_y, exact_x, exact_y, x0, y0, t0, title):
 
 def main():
     # Первая задача
-    # show(fun_x1, fun_y1, exact_x1, exact_y1, 3, 0, 0, "Задание 1")
+    show(fun_x1, fun_y1, exact_x1, exact_y1, 3, 0, 0, "Задание 1")
     # Вторая задача
-    show(fun_x2, fun_y2, exact_x2, exact_y2, 2, 2, 0, "Задание 2")
+    # show(fun_x2, fun_y2, exact_x2, exact_y2, 2, 2, 0, "Задание 2")
 
 
 if __name__ == '__main__':
