@@ -38,23 +38,35 @@ class Model_detail:
 
         check_breakdown = True  # Станок в любой момент может сломаться
         all_time_breakdown = 0  # суммарное время поломок
+        all_time_interval_next = 0 # Суммарное время всего ожидания
 
         time_between_breakdown = 0  # время между поломками
-        queue_detail = []  # очередь деталей
         time_for_this_detail = 0  # Время выполнения текущей детали
 
-        again = 0 # Флаг
+        again = 0  # Флаг
 
         # если деталей обработано меньше чем дано или есть деталей нет в очереди
-        while count_processed_detail < self.count_detail or len(queue_detail) != 0:
-            again = 0 # Флаг
-            # Получаем детали с интервалом:
+        while count_processed_detail < self.count_detail:
+            again = 0  # Флаг
+
+            # Получаем детали с интервалом, пока не получим все:
             if number_detail < self.count_detail:
                 time_interval_next = random.expovariate(1)  # экспоненциальное распределение
-                self.result_time += time_interval_next
-                queue_detail.append(number_detail)  # Добавили деталь в очередь
-                number_detail += 1  # Переход к следующей
-                self.time_every_detail[number_detail-1] += time_interval_next # Добавили время ожидания
+                all_time_interval_next += time_interval_next
+
+                # Если это первая деталь, то прибавляем время ожидания, иначе отнимаем время ожидания других
+                if count_processed_detail == 0:
+                    self.time_every_detail[count_processed_detail] += time_interval_next  # Добавили время ожидания
+                else:
+                    # Если предыдущая деталь обработалась
+                    if time_for_this_detail == 0:
+                        # Если у нас есть время ожидания
+                        if all_time_interval_next - self.result_time > 0:
+                            self.time_every_detail[count_processed_detail] += all_time_interval_next - self.result_time  # Добавили время ожидания
+                        else:
+                            self.time_every_detail[count_processed_detail] = 0 # Ожидания не было
+
+
 
             # Наладка станка:
             install_machine = np.random.uniform(self.min_setup_time, self.max_setup_time)
@@ -66,6 +78,7 @@ class Model_detail:
 
             # если интервал следующей поломки не выбран:
             if check_breakdown:
+                # Время следующей поломки
                 time_between_breakdown = np.random.normal(self.interval_breaking, self.sd_interval_breaking)
                 check_breakdown = False  # Станок скоро сломается
 
@@ -74,12 +87,12 @@ class Model_detail:
                     all_time_breakdown + time_between_breakdown > time_for_this_detail + self.result_time:
 
                 # Время устранения поломки
-                time_fix_breakdown = np.random.uniform(self.min_breakdown_duration,
-                                                       self.max_breakdown_duration)  # равномерное распределение
+                time_fix_breakdown = np.random.uniform(self.min_breakdown_duration, self.max_breakdown_duration)  # равномерное распределение
+
+                time_for_this_detail += time_fix_breakdown + \
+                                        (all_time_breakdown + time_between_breakdown - time_for_this_detail - self.result_time)  # Добавили время исправления детали и время работы станка
 
                 all_time_breakdown += time_between_breakdown + time_fix_breakdown  # сохраняем интервал и время на починку
-
-                time_for_this_detail += time_fix_breakdown  # Добавили время исправления детали
 
                 self.count_breakdown += 1  # Отмечаем поломку
 
@@ -101,20 +114,27 @@ class Model_detail:
                 self.count_breakdown += 1  # отмечаем поломку
 
                 check_breakdown = True  # станок починили
+            #Если поломок не было
+            else :
+                time_for_this_detail += time_work_machine
 
-            # еще одна
+            # еще одна деталь готова
             if again == 0:
-                self.result_time += time_for_this_detail  # сохраняем время обработки
-                self.time_every_detail[count_processed_detail] += time_for_this_detail # Добавляем время обработки детали
+                self.time_every_detail[count_processed_detail] += time_for_this_detail  # Добавляем время обработки детали
+                self.result_time += self.time_every_detail[count_processed_detail]
+                # print("Время выполнения с учетом ожидания:" + str(count_processed_detail) + " номер "
+                #       + str(self.time_every_detail[count_processed_detail]) + " время ")
+                # print("Количество поломок: " + str(self.count_breakdown))
+                # print()
 
-                time_for_this_detail = 0
-                count_processed_detail += 1 # Деталь готова
-                del (queue_detail[0])  # Убираем очередь
+                time_for_this_detail = 0 # Обновляем время
+                count_processed_detail += 1  # Деталь готова
 
     # Вывод
     def output(self):
         print('Общее время выполнения задачи: ' + str(self.result_time) + ' ч.')
-        print(self.time_every_detail)
+        print("Количество поломок: " + str(self.count_breakdown))
+
 
     # График
     def show(self):
