@@ -83,8 +83,8 @@ class Model_detail:
                 check_breakdown = False  # Станок скоро сломается
 
             # Поломка произошла, когда обрабатывалась деталь:
-            if time_for_this_detail + self.result_time + time_work_machine > \
-                    all_time_breakdown + time_between_breakdown > time_for_this_detail + self.result_time:
+            if time_for_this_detail + self.result_time + time_work_machine + self.time_every_detail[count_processed_detail] > \
+                    all_time_breakdown + time_between_breakdown > time_for_this_detail + self.result_time + self.time_every_detail[count_processed_detail]:
 
                 # Время устранения поломки
                 time_fix_breakdown = np.random.uniform(self.min_breakdown_duration, self.max_breakdown_duration)  # равномерное распределение
@@ -101,7 +101,7 @@ class Model_detail:
                 again = 1  # Обработка детали заново
 
             # Поломка произошла во время простоя:
-            elif time_for_this_detail + time_work_machine + self.result_time > all_time_breakdown + time_between_breakdown > self.result_time:
+            elif time_for_this_detail + time_work_machine + self.result_time + self.time_every_detail[count_processed_detail] > all_time_breakdown + time_between_breakdown > self.result_time:
 
                 # Время устранения поломки
                 time_fix_breakdown = np.random.uniform(self.min_breakdown_duration,
