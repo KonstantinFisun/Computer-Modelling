@@ -114,8 +114,8 @@ class Model_detail:
                 self.count_breakdown += 1  # отмечаем поломку
 
                 check_breakdown = True  # станок починили
-            #Если поломок не было
-            else :
+            # Если поломок не было
+            else:
                 time_for_this_detail += time_work_machine
 
             # еще одна деталь готова
