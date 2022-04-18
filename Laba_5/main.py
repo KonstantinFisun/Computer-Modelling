@@ -30,6 +30,10 @@ class Model_detail:
 
         self.count_detail = count_detail  # кол-во деталей
 
+        self.count_detail_after = 0
+
+        self.waiting_time = 0
+
     # Обработчик деталей
     def model(self):
 
@@ -65,6 +69,7 @@ class Model_detail:
                             self.time_every_detail[count_processed_detail] += all_time_interval_next - self.result_time  # Добавили время ожидания
                         else:
                             self.time_every_detail[count_processed_detail] = 0 # Ожидания не было
+
 
 
 
@@ -146,12 +151,13 @@ class Model_detail:
         plt.ylabel('Количество деталей')
         plt.show()
 
-
+# Сделать количество деталей оставшихся в очереди
+# Время ожидания в сумме
 def main():
     a = Model_detail(500)
     a.model()
     a.output()
-    a.show()
+    # a.show()
 
 
 if __name__ == '__main__':
