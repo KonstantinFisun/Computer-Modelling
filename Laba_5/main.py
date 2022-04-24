@@ -59,13 +59,13 @@ class Model_detail:
             # Если это первая деталь, то прибавляем время ожидания, иначе отнимаем время ожидания других
             if count_processed_detail == 0:
                 self.time_every_detail[count_processed_detail] += time_interval_next  # Добавили время ожидания
-                self.all_downtime += all_time_interval_next - self.result_time  # Учитываем время простоя
+                # self.all_downtime += all_time_interval_next - self.result_time  # Учитываем время простоя
             else:
                 # Если предыдущая деталь обработалась
                 if time_for_this_detail == 0:
                     # Если у нас есть время ожидания
                     if all_time_interval_next - self.result_time > 0:
-                        self.all_downtime += all_time_interval_next - self.result_time  # Учитываем время простоя
+                        # self.all_downtime += all_time_interval_next - self.result_time  # Учитываем время простоя
                         self.time_every_detail[
                             count_processed_detail] += all_time_interval_next - self.result_time  # Добавили время ожидания
                     else:
@@ -95,9 +95,12 @@ class Model_detail:
                 time_fix_breakdown = np.random.uniform(self.min_breakdown_duration,
                                                        self.max_breakdown_duration)  # равномерное распределение
 
+                self.all_downtime += time_fix_breakdown # Время простоя
+
+                # Добавили время исправления детали и время работы станка
                 time_for_this_detail += time_fix_breakdown + \
                                         (
-                                                    all_time_breakdown + time_between_breakdown - time_for_this_detail - self.result_time)  # Добавили время исправления детали и время работы станка
+                                                    all_time_breakdown + time_between_breakdown - time_for_this_detail - self.result_time)
 
                 all_time_breakdown += time_between_breakdown + time_fix_breakdown  # сохраняем интервал и время на починку
 
@@ -114,6 +117,8 @@ class Model_detail:
                 # Время устранения поломки
                 time_fix_breakdown = np.random.uniform(self.min_breakdown_duration,
                                                        self.max_breakdown_duration)  # равномерное распределение
+
+                self.all_downtime += time_fix_breakdown  # Время простоя
 
                 all_time_breakdown += time_between_breakdown + time_fix_breakdown  # сохраняем интервал и время на починку
 
@@ -134,7 +139,6 @@ class Model_detail:
 
                 time_for_this_detail = 0  # Обновляем время
                 count_processed_detail += 1  # Деталь готова
-        print(all_time_interval_next)
 
         # Количество деталей, оставшихся после обработки заданного числа
         while self.result_time - all_time_interval_next > 0:
@@ -145,7 +149,7 @@ class Model_detail:
         print('Общее время выполнения задачи: ' + str(self.result_time) + ' ч.')
         print("Количество поломок: " + str(self.count_breakdown))
         print("Общее время простоя станка: " + str(self.all_downtime))
-        print("Количество деталей оставшихся после обработки заданного числа: " + str(self.count_detail_over))
+        print("Количество деталей оставшихся в очереди после обработки заданного числа: " + str(self.count_detail_over))
 
     # График
     def show(self):
