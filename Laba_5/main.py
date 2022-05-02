@@ -2,7 +2,6 @@ import numpy as np
 import random
 import matplotlib.pyplot as plt
 
-
 class Model_detail:
     # Конструктор
     def __init__(self, count_detail):
@@ -148,8 +147,8 @@ class Model_detail:
     def output(self):
         print('Общее время выполнения задачи: ' + str(self.result_time) + ' ч.')
         print("Количество поломок: " + str(self.count_breakdown))
-        print("Общее время простоя станка: " + str(self.all_downtime))
-        print("Количество деталей оставшихся в очереди после обработки заданного числа: " + str(self.count_detail_over))
+        print("Общее время простоя станка: " + str(self.all_downtime) + ' ч.')
+        print("Количество деталей, оставшихся в очереди после обработки заданного числа: " + str(self.count_detail_over))
 
     # График
     def show(self):
@@ -163,10 +162,26 @@ class Model_detail:
 
 
 def main():
-    a = Model_detail(500)
-    a.model()
-    a.output()
-    # a.show()
+    n = 100 # Количество повторения
+    result_time = 0
+    count_breakdown = 0
+    all_downtime = 0
+    count_detail_over = 0
+    for i in range(n):
+        a = Model_detail(500)
+        a.model()
+        result_time += a.result_time
+        count_breakdown += a.count_breakdown
+        all_downtime += a.all_downtime
+        count_detail_over += a.count_detail_over
+    result_time /= n
+    count_breakdown /= n
+    all_downtime /= n
+    count_detail_over /= n
+    print('Общее время выполнения задачи: ' + str(result_time) + ' ч.')
+    print("Количество поломок: " + str(count_breakdown))
+    print("Общее время простоя станка: " + str(all_downtime) + ' ч.')
+    print("Количество деталей, оставшихся в очереди после обработки заданного числа: " + str(count_detail_over))
 
 
 if __name__ == '__main__':
