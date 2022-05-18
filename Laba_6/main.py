@@ -409,8 +409,23 @@ def make_window1():
 
     return sg.Window('Лабораторная работа 6', layout, finalize=True).Finalize()
 
-def make_window2(model, kol):
-    layout = [[sg.Text(f'Выполнено заданий:#{}')],
+def make_window2(model, kol, kol_task):
+    res_t_interval, time, done_exs, t_prost, sred_t_in_queue, len_queue = model.n_start()
+    layout = [[sg.Text(f'Выполнено заданий:{kol_task}')],
+              [sg.Text(f'Количество повторений:{kol}')],
+              [sg.Text(f'Среднее время работы над заданиями:{round(res_t_interval, 4)}')],
+              [sg.Text(f'ЭВМ 1:Время работы над заданиями:{round(time[0], 4)}, '),
+               sg.Text(f'Время простоя:{round(t_prost[0], 4)}, '), sg.Text(f'Коэффициент использования:{round(time[0] / res_t_interval, 4)}')],
+              [sg.Text(f'ЭВМ 2:Время работы над заданиями:{round(time[1], 4)}, '),
+               sg.Text(f'Время простоя:{round(t_prost[1], 4)}'), sg.Text(f'Коэффициент использования:{round(time[1] / res_t_interval, 4)}')],
+              [sg.Text(f'ЭВМ 3:Время работы над заданиями:{round(time[2], 4)}, '),
+               sg.Text(f'Время простоя:{round(t_prost[2], 4)}'), sg.Text(f'Коэффициент использования:{round(time[2] / res_t_interval, 4)}')],
+
+              [sg.Text(f'ЭВМ 1:Обработано заданий:{done_exs[0]}, ')],
+              [sg.Text(f'ЭВМ 2:Обработано заданий:{done_exs[1][0]}, '),
+               sg.Text(f'Обработано заданий после ЭВМ 1:{done_exs[1][1]}')],
+              [sg.Text(f'ЭВМ 3:Обработано заданий:{done_exs[1][0]}, '),
+               sg.Text(f'Обработано заданий после ЭВМ 1:{done_exs[2][1]}')],
               [sg.Button('Вернуться на главную'), sg.Button('Выход')]]
 
     return sg.Window('Результат', layout, finalize=True).Finalize()
@@ -469,11 +484,10 @@ def main():
                            values['probability_P3_after'],
                            values['interval_between_task'], values['interval_between_task_range'])
 
-            window2 = make_window2(m,values['count_repeat'])
-        if window == window2 and event in (sg.WIN_CLOSED, 'Exit'):
+            window2 = make_window2(m,values['count_repeat'], values['count_task'])
+        if window == window2 and event in (sg.WIN_CLOSED, 'Выход'):
             break
         if window == window2 and event == "Вернуться на главную":
-            window1 = make_window1()
             window2.close()
     window1.close()
 
