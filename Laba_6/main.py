@@ -410,23 +410,55 @@ def make_window1():
     return sg.Window('Лабораторная работа 6', layout, finalize=True).Finalize()
 
 def make_window2(model, kol, kol_task):
-    res_t_interval, time, done_exs, t_prost, sred_t_in_queue, len_queue = model.n_start()
-    layout = [[sg.Text(f'Выполнено заданий:{kol_task}')],
-              [sg.Text(f'Количество повторений:{kol}')],
-              [sg.Text(f'Среднее время работы над заданиями:{round(res_t_interval, 4)}')],
-              [sg.Text(f'ЭВМ 1:Время работы над заданиями:{round(time[0], 4)}, '),
-               sg.Text(f'Время простоя:{round(t_prost[0], 4)}, '), sg.Text(f'Коэффициент использования:{round(time[0] / res_t_interval, 4)}')],
-              [sg.Text(f'ЭВМ 2:Время работы над заданиями:{round(time[1], 4)}, '),
-               sg.Text(f'Время простоя:{round(t_prost[1], 4)}'), sg.Text(f'Коэффициент использования:{round(time[1] / res_t_interval, 4)}')],
-              [sg.Text(f'ЭВМ 3:Время работы над заданиями:{round(time[2], 4)}, '),
-               sg.Text(f'Время простоя:{round(t_prost[2], 4)}'), sg.Text(f'Коэффициент использования:{round(time[2] / res_t_interval, 4)}')],
-
-              [sg.Text(f'ЭВМ 1:Обработано заданий:{done_exs[0]}, ')],
-              [sg.Text(f'ЭВМ 2:Обработано заданий:{done_exs[1][0]}, '),
-               sg.Text(f'Обработано заданий после ЭВМ 1:{done_exs[1][1]}')],
-              [sg.Text(f'ЭВМ 3:Обработано заданий:{done_exs[1][0]}, '),
-               sg.Text(f'Обработано заданий после ЭВМ 1:{done_exs[2][1]}')],
-              [sg.Button('Вернуться на главную'), sg.Button('Выход')]]
+    layout = []
+    if int(kol) > 1:
+        res_t_interval, time, done_exs, t_prost, sred_t_in_queue, len_queue = model.n_start()
+        layout = [[sg.Text(f'Выполнено заданий:{kol_task}')],
+                  [sg.Text(f'Количество повторений:{kol}')],
+                  [sg.Text(f'Среднее время работы над заданиями:{round(res_t_interval, 4)} м.')],
+                  [sg.Text(f'ЭВМ 1:Среднее время работы над заданиями:{round(time[0], 4)} м., '),
+                   sg.Text(f'Время простоя:{round(t_prost[0], 4)} м., '), sg.Text(f'Коэффициент использования:{round(time[0] / res_t_interval, 4)}')],
+                  [sg.Text(f'ЭВМ 2:Среднее время работы над заданиями:{round(time[1], 4)} м., '),
+                   sg.Text(f'Время простоя:{round(t_prost[1], 4)} м., '), sg.Text(f'Коэффициент использования:{round(time[1] / res_t_interval, 4)}')],
+                  [sg.Text(f'ЭВМ 3:Среднее время работы над заданиями:{round(time[2], 4)} м., '),
+                   sg.Text(f'Время простоя:{round(t_prost[2], 4)} м., '), sg.Text(f'Коэффициент использования:{round(time[2] / res_t_interval, 4)}')],
+                  [sg.Text(f'ЭВМ 1:В среднем обработано заданий:{done_exs[0]}, ')],
+                  [sg.Text(f'ЭВМ 2:В среднем обработано заданий:{done_exs[1][0]}, '),
+                   sg.Text(f'В среднем обработано заданий после ЭВМ 1:{done_exs[1][1]}')],
+                  [sg.Text(f'ЭВМ 3:В среднем обработано заданий:{done_exs[2][0]}, '),
+                   sg.Text(f'В среднем обработано заданий после ЭВМ 1:{done_exs[2][1]}')],
+                  [sg.Text(f'ЭВМ 1:В среднем осталось в очереди:{len_queue[0]}, '),
+                   sg.Text(f'Среднее время в очереди:{round(sred_t_in_queue[0],4)} м.')],
+                  [sg.Text(f'ЭВМ 2:В среднем осталось в очереди:{len_queue[1]}, '),
+                   sg.Text(f'Среднее время в очереди:{round(sred_t_in_queue[1],4)} м.')],
+                  [sg.Text(f'ЭВМ 3:В среднем осталось в очереди:{len_queue[2]}, '),
+                   sg.Text(f'Среднее время в очереди:{round(sred_t_in_queue[2],4)} м.')],
+                  [sg.Button('Вернуться на главную'), sg.Button('Выход')]]
+    if int(kol) == 1:
+        temp_n, res_t_interval, time, done_exs, len_queue, max_len_queue, all_in_queue, t_prost, sred_t_in_queue = m.model()
+        layout = [[sg.Text(f'Выполнено заданий:{kol_task}')],
+                  [sg.Text(f'Время работы над заданиями:{round(res_t_interval, 4)} м.')],
+                  [sg.Text(f'ЭВМ 1:Время работы над заданиями:{round(time[0], 4)} м., '),
+                   sg.Text(f'Время простоя:{round(t_prost[0], 4)} м., '),
+                   sg.Text(f'Коэффициент использования:{round(time[0] / res_t_interval, 4)}')],
+                  [sg.Text(f'ЭВМ 2:Время работы над заданиями:{round(time[1], 4)} м., '),
+                   sg.Text(f'Время простоя:{round(t_prost[1], 4)} м., '),
+                   sg.Text(f'Коэффициент использования:{round(time[1] / res_t_interval, 4)}')],
+                  [sg.Text(f'ЭВМ 3:Время работы над заданиями:{round(time[2], 4)} м., '),
+                   sg.Text(f'Время простоя:{round(t_prost[2], 4)} м., '),
+                   sg.Text(f'Коэффициент использования:{round(time[2] / res_t_interval, 4)}')],
+                  [sg.Text(f'ЭВМ 1:Обработано заданий:{done_exs[0]}, ')],
+                  [sg.Text(f'ЭВМ 2:Обработано заданий:{done_exs[1][0]}, '),
+                   sg.Text(f'Обработано заданий после ЭВМ 1:{done_exs[1][1]}')],
+                  [sg.Text(f'ЭВМ 3:Обработано заданий:{done_exs[2][0]}, '),
+                   sg.Text(f'Обработано заданий после ЭВМ 1:{done_exs[2][1]}')],
+                  [sg.Text(f'ЭВМ 1:Осталось в очереди:{len_queue[0]}, '),
+                   sg.Text(f'Среднее время в очереди:{round(sred_t_in_queue[0], 4)} м.')],
+                  [sg.Text(f'ЭВМ 2:Осталось в очереди:{len_queue[1]}, '),
+                   sg.Text(f'Среднее время в очереди:{round(sred_t_in_queue[1], 4)} м.')],
+                  [sg.Text(f'ЭВМ 3:Осталось в очереди:{len_queue[2]}, '),
+                   sg.Text(f'Среднее время в очереди:{round(sred_t_in_queue[2], 4)} м.')],
+                  [sg.Button('Вернуться на главную'), sg.Button('Выход')]]
 
     return sg.Window('Результат', layout, finalize=True).Finalize()
 
