@@ -35,16 +35,17 @@ class Model_lab6:
 
     def model(self):
         # Открываем файл для записи
+        global t1, t2
         f = open('result.txt', 'w')
         res_t_interval = 0 # Общее время обработки
         res = [0, 0, 0] # Результат
         done_exs = [0, [0, 0], [0, 0]] # Обработано заданий
         queue = [[], [], []] # Очередь
         temp_n = 0 # Обработано заданий
-        time = [0, 0, 0] # Время
+        time = [0, 0, 0] # Время обработки заданий
         interval = 0 # Интервал
         max_len_queue = [0, 0, 0] # Максимальная длина в очереди
-        all_in_queue = [0, 0, 0] # В очереди
+        all_in_queue = [0, 0, 0] # Всего в очереди было
         sred_t_in_queue = [0, 0, 0] # Среднее время в очереди
 
 
@@ -113,7 +114,7 @@ class Model_lab6:
                         temp_n += 1 # Всего обработано
                     # Если это первая ЭВМ
                     else:
-                        done_exs[i] += 1 # Добавляем обработанную деталь
+                        done_exs[i] += 1 # Добавляем обработанное задание
                         # Выбор ЭВМ для обработки Bi
                         evm2_p = random.choices([1, 2], weights=[self.p1_2, self.p1_3])[0]
 
@@ -129,57 +130,70 @@ class Model_lab6:
                             # Вычисляем максимальную длину очереди
                             if len(queue[evm2_p]) > max_len_queue[evm2_p]:
                                 max_len_queue[evm2_p] = len(queue[evm2_p])
+                        # ЭВМ не занята
                         else:
-                            
+                            # Время обработки вычисляем
                             t21 = self.choose_t(evm2_p)
-                            f.write("\nНе в очередь, интервал времени обработки задания: " + str(t21))
+                            f.write("\nВремя обработки задания: " + str(t21))
+                            # Добавляем задание к обработанным
                             done_exs[evm2_p][1] += 1
                             done_exs[evm2_p][0] += 1
-                            time[evm2_p] += t21
-                            res[evm2_p] = res_t_interval - interval + t2[i] + t21
-                            temp_n += 1
-                            t2[i] += t21
+                            time[evm2_p] += t21 # Добавляем время обработки
+                            res[evm2_p] = res_t_interval - interval + t2[i] + t21 # Общее время
+                            temp_n += 1 # Добавляем к обработанным заданиям
+                            t2[i] += t21 #Время работы
+            # Задание обрабатывалось на 1 ЭВМ
             if evm == 0 and to_queue == False:
+                # Выбираем следующую ЭВМ после 1
                 evm2 = random.choices([1, 2], weights=[self.p1_2, self.p1_3])[0]
-                f.write("\nПродолжаем работать над текущим заданием на " + str(evm2 + 1))
+                f.write("\nРабота над заданием A после ЭВМ 1 на " + str(evm2 + 1))
+                # Если ЭВМ занята
                 if res[evm2] > res_t_interval + t1:
-                    f.write("\nВ очередь")
+                    # Добавление в очередь
+                    f.write("\nВ очередь задание А")
                     queue[evm2].append((2, res_t_interval))
                     all_in_queue[evm2] += 1
                     if len(queue[evm2]) > max_len_queue[evm2]:
                         max_len_queue[evm2] = len(queue[evm2])
+                # ЭВМ не занята
                 elif temp_n < self.n:
                     t11 = self.choose_t(evm2)
-                    f.write("\nНе в очередь, интервал времени обработки задания: " + str(t11))
+                    f.write("\nВремя обработки задания A: " + str(t11))
                     temp_n += 1
                     done_exs[evm2][1] += 1
                     done_exs[evm2][0] += 1
                     time[evm2] += t11
                     res[evm2] = res_t_interval + t1 + t11
                     t1 += t11
-            f.write("\nВыполнено заданий после этого шага: " + str(temp_n))
-            f.write("\nОчереди после этого шага: " + str(queue[0]) + ' ' + str(queue[1]) + ' ' + str(queue[2]))
+            f.write("\nВыполнено заданий после текущей итерации: " + str(temp_n))
+            f.write("\nОчереди на ЭВМ: " + str(queue[0]) + ' ' + str(queue[1]) + ' ' + str(queue[2]))
         res_t_interval += max(t1, t2[0], t2[1], t2[2])
+        # Время простоя
         t_prost = [0, 0, 0]
         t_prost[0] = res_t_interval - time[0]
         t_prost[1] = res_t_interval - time[1]
         t_prost[2] = res_t_interval - time[2]
+
+        # Среднее время в очереди
         sred_t_in_queue[0] /= all_in_queue[0]
         sred_t_in_queue[1] /= all_in_queue[1]
         sred_t_in_queue[2] /= all_in_queue[2]
+
         f.write("\n\n\nОбщее время работы: " + str(res_t_interval) + " минут")
+
         f.close()
         return temp_n, res_t_interval, time, done_exs, [len(queue[0]), len(queue[1]), len(
             queue[2])], max_len_queue, all_in_queue, t_prost, sred_t_in_queue
 
-    def n_start(self):
+    # Больше одного повторения
+    def n_start(self, kol):
         sred_time = [0, 0, 0] # Среднее время работы
         sred_res_t_interval = 0 # Среднее время выполнения поступившего числа заказов
         sred_done_exs = [0, [0, 0], [0, 0]]
         sred_t_prost = [0, 0, 0]
         sred_sred_t_in_queue = [0, 0, 0]
         sred_len_queue = [0, 0, 0]
-        for i in range(self.kol):
+        for i in range(kol):
             temp_n, res_t_interval, time, done_exs, len_queue, max_len_queue, all_in_queue, t_prost, sred_t_in_queue = self.model()
             sred_res_t_interval += res_t_interval
             for j in [0, 1, 2]:
@@ -192,16 +206,16 @@ class Model_lab6:
                     sred_done_exs[j][1] += done_exs[j][1]
                 else:
                     sred_done_exs[j] += done_exs[j]
-            for j in [0, 1, 2]:
-                sred_time[j] /= self.kol
-                sred_t_prost[j] /= self.kol
-                sred_sred_t_in_queue[j] /= self.kol
-                sred_len_queue[j] /= self.kol
-                if j != 0:
-                    sred_done_exs[j][0] /= self.kol
-                    sred_done_exs[j][1] /= self.kol
-                else:
-                    sred_done_exs[j] /= self.kol
+        for j in [0, 1, 2]:
+            sred_time[j] /= kol
+            sred_t_prost[j] /= kol
+            sred_sred_t_in_queue[j] /= kol
+            sred_len_queue[j] /= kol
+            if j != 0:
+                sred_done_exs[j][0] /= kol
+                sred_done_exs[j][1] /= kol
+            else:
+                sred_done_exs[j] /= kol
 
         return sred_res_t_interval / self.kol, sred_time, sred_done_exs, sred_t_prost, sred_sred_t_in_queue, sred_len_queue
 
@@ -230,7 +244,10 @@ def make_window1():
 def make_window2(model, kol, kol_task):
     layout = []
     if int(kol) > 1:
-        res_t_interval, time, done_exs, t_prost, sred_t_in_queue, len_queue = model.n_start()
+        res_t_interval, time, done_exs, t_prost, sred_t_in_queue, len_queue = model.n_start(int(kol))
+        # time[0] *= int(kol)
+        # time[1] *= int(kol)
+        # time[2] *= int(kol)
         layout = [[sg.Text(f'Выполнено заданий:{kol_task}')],
                   [sg.Text(f'Количество повторений:{kol}')],
                   [sg.Text(f'Среднее время работы над заданиями:{round(res_t_interval, 4)} м.')],
