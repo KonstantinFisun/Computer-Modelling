@@ -36,7 +36,7 @@ class Model_lab6:
     def model(self):
         # Открываем файл для записи
         global t1, t2
-        f = open('result.txt', 'w')
+        f = open('Out.txt', 'w')
         res_t_interval = 0 # Общее время обработки
         res = [0, 0, 0] # Результат
         done_exs = [0, [0, 0], [0, 0]] # Обработано заданий
@@ -62,16 +62,16 @@ class Model_lab6:
             # Поступление задания A в систему
             # Взвешенный случайный выбор
             evm = random.choices([0, 1, 2], weights=[self.p1, self.p2, self.p3])[0]
-            f.write("\nЭВМ " + str(evm + 1) + "")
+            f.write("\nЭВМ " + str(evm + 1) + " ")
 
-            f.write("Интервал до этого задания: " + str(interval))
+            f.write("Время до задания A: " + str(interval))
             to_queue = False # В очередь никого
 
             # Предыдущие задание обрабатывается или очередь не пустая
             if res[evm] > res_t_interval or queue[evm] != []:
                 # Задание добавляется в очередь
                 queue[evm].append((1, res_t_interval))
-                f.write("\nВ очередь")
+                f.write("\nВ очередь задание A")
                 to_queue = True # Очередь есть
                 all_in_queue[evm] += 1 # Всего в очереде
                 # Определение максимальной длины очереди
@@ -80,7 +80,7 @@ class Model_lab6:
             else:
                 # Обработка задания
                 t1 = self.choose_t(evm) # Время обработки задания в минутах
-                f.write("\nВремя обработки задания: " + str(t1))
+                f.write("\nВремя обработки задания Bi из очереди: " + str(t1))
                 time[evm] += t1 # Добавляем время обработки
 
                 # Если это первая ЭВМ
@@ -89,7 +89,6 @@ class Model_lab6:
                 else:
                     done_exs[evm][0] += 1 # Добавляем обработанное задание к остальным
                     temp_n += 1 # Всего обработанно
-                f.write("\nНе из очереди")
                 res[evm] = res_t_interval + t1 # Общее время для ЭВМ
 
             # Проходимся по каждому ЭВМ
@@ -98,7 +97,7 @@ class Model_lab6:
                 if temp_n < self.n and queue[i] != [] and res[i] < res_t_interval:
                     # Получение задания Bi из очереди и получаем его время обработки
                     t2[i] = self.choose_t(i)
-                    f.write("\nВремя обработки задания, которое выполняется параллельно на " + str(i + 1) + ": " + str(t2[i]))
+                    f.write("\nВремя обработки задания, которое выполняется на " + str(i + 1) + ": " + str(t2[i]))
                     time[i] += t2[i] # Добавляем к времени
                     res[i] += t2[i] # Добавляем к результирующему
 
@@ -123,7 +122,6 @@ class Model_lab6:
 
                         # Если ЭВМ занята
                         if res[evm2_p] > res_t_interval - interval + t1:
-                            f.write("\nВ очередь")
                             # Добавляем в очередь
                             queue[evm2_p].append((2, res_t_interval))
                             all_in_queue[evm2_p] += 1 # Всего в очереди
@@ -146,7 +144,7 @@ class Model_lab6:
             if evm == 0 and to_queue == False:
                 # Выбираем следующую ЭВМ после 1
                 evm2 = random.choices([1, 2], weights=[self.p1_2, self.p1_3])[0]
-                f.write("\nРабота над заданием A после ЭВМ 1 на " + str(evm2 + 1))
+                f.write("\nРабота над заданием A после ЭВМ 1 на ЭВМ" + str(evm2 + 1))
                 # Если ЭВМ занята
                 if res[evm2] > res_t_interval + t1:
                     # Добавление в очередь
@@ -166,7 +164,7 @@ class Model_lab6:
                     res[evm2] = res_t_interval + t1 + t11
                     t1 += t11
             f.write("\nВыполнено заданий после текущей итерации: " + str(temp_n))
-            f.write("\nОчереди на ЭВМ: " + str(queue[0]) + ' ' + str(queue[1]) + ' ' + str(queue[2]))
+            f.write("\nОчереди на ЭВМ: " + str(queue[0]) + ' ' + str(queue[1]) + ' ' + str(queue[2]) + "\n")
         res_t_interval += max(t1, t2[0], t2[1], t2[2])
         # Время простоя
         t_prost = [0, 0, 0]
